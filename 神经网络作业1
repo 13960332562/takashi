@@ -1,0 +1,266 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Homewok 1: Simulation Study\n",
+    "\n",
+    "Welcome to the course **AI and Deep learning**!\n",
+    "\n",
+    "Since most of you are not very familiar with deep learning, let us first review some basic concepts in traditional statistic courses. Specifically, the first homework help you to code up a linear regression model, and we are going to generate a training data, visualize the data, estimate the model parameters, and make inference about the model parameters. Hope you enjoy the first homework!  \n",
+    "\n",
+    "**Learning Goal**: In this homework, we are going to conduct a simple simulation study based on a linear regression. After this homework, you will know:\n",
+    "\n",
+    "* Basic tips about how to setup a statistic simulation study.\n",
+    "* How to decompose a certain task into severl small functions.\n",
+    "* How to estimate the model parameters based on a linear regression model.\n",
+    "* How to obtain the coverage rates based on certain asymptotic results.\n",
+    "* How to do vectorization based on a linear regression model. We also compare the computation efficiency between summation and vectorization. \n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Table of content\n",
+    "* [1 - Packages](#1)\n",
+    "* [2 - Generate a training dataset](#2)\n",
+    "* [3 - Parameter estimation](#3) \n",
+    "* [4 - Statistical inference](#4)\n",
+    "* [5 - Computation efficiency](#5)\n",
+    "* [6 - Additional homework](#6)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<a name='1'></a>\n",
+    "## 1- Packages\n",
+    "\n",
+    "In order to finish a task, we need commands from certain **Python** packages. Thus, the first thing to do is to import the packages we need. One of the commonly used package is **numpy**."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# PLEASE DO NOT CHANGE THE FOLLOWING CODE\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt # for plots\n",
+    "import scipy.stats # for quantile calculation when we consider coverage rates\n",
+    "import time # for computation efficiency comparison"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<a name='2'></a>\n",
+    "## 2 - Generate a training dataset\n",
+    "\n",
+    "The main difference between a simulation study and a real data application is that a model is pre-specified for a simulation study. Then, we can generate different training datasets from that model. **In order to guarantee that our simulation results are reproducible, we need to control the random seed.** That is, after controlling the seed, others can generate the **SAME** random variables as we did, so our simulation results can be reproduced.\n",
+    "\n",
+    "Since we are using the package **numpy** (or **np**) to generate random variables, the following command is useful:\n",
+    "* np.random.seed(xxxx) # xxxx is the seed to generate random numbers. \n",
+    "\n",
+    "The following is a simple example, which may be useful. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# PLEASE DO NOT CHANGE THE FOLLOWING CODE\n",
+    "np.random.seed(1)\n",
+    "a = np.random.normal(1) # the first random variable generated after the seed.\n",
+    "print(a)\n",
+    "b = np.random.normal(1) # the second random variable generated after the seed.\n",
+    "print(b)\n",
+    "\n",
+    "np.random.seed(1)\n",
+    "c = np.random.normal(1) # the first random variable generated after the seed. It should equal to a.\n",
+    "print(c)\n",
+    "print(a==c)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now, it is your turn to generate a training dataset. Consider the following linear regression model \n",
+    "\\begin{equation}\n",
+    "y^{(i)}=b_0+w_0x^{(i)}+\\epsilon^{(i)}\\quad(i=1,\\ldots,n),\\tag{1}\\label{eq: model setup}\n",
+    "\\end{equation}\n",
+    "where $b_0=w_0=1$, $x^{(i)}\\sim N(2,2^2)$ and $\\epsilon^{(i)}\\sim N(0,1)$ for $i=1,\\ldots,n$.\n",
+    "\n",
+    "Your first job is to write a function to generate a training dataset of size $n$ with a random number $rn$. That is, compete the following function. (**DO NOT CHANGE THE EXISTING PARTS**) The following command may be useful, and check the help document for details:\n",
+    "\n",
+    "* `np.random.normal`: generate normally distributed random variables.\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# PLEASE DO NOT CHANGE THE EXISTING CODE\n",
+    "# Provide your code between ``YOUR CODE BEGINS HERE (approximately 4 lines)'' and ``YOUR CODE ENDS''.\n",
+    "def train_data_generation(n, rn):\n",
+    "    # n: sample size\n",
+    "    # rn: random seed\n",
+    "    \n",
+    "    # Step 1. Set random seed to be rn\n",
+    "    # Step 2. Generate x of size n from a normal distribution with mean 2 and standard deviation 2\n",
+    "    # Step 3. Generate \\epsilon of size n from a normal distribution with mean 2 and standard deviation 2\n",
+    "    # Step 4. Generate y by (1)\n",
+    "    \n",
+    "    ### YOUR CODE BEGINS HERE (approximately 4 lines)\n",
+    "    np.random.seed()\n",
+    "    x = \n",
+    "    epsilon = \n",
+    "    y = \n",
+    "    ### YOUR CODE ENDS\n",
+    "    \n",
+    "    \n",
+    "    return x, y\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To visualize your data, you may would like to run the following code."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# PLEASE DO NOT CHANGE THE FOLLOWING CODE\n",
+    "x, y = train_data_generation(1000, 100)\n",
+    "\n",
+    "plt.scatter(x,y)\n",
+    "plt.xlabel(\"x values\")\n",
+    "plt.ylabel(\"y values\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<a name='3'></a>\n",
+    "## 3 - Parameter estimation\n",
+    "\n",
+    "Denote $\\tilde{x}^{(i)} = (1,x^{(i)})^T$, $X=(\\tilde{x}^{(1)},\\ldots,\\tilde{x}^{(n)})^{T}\\in\\mathbb{R}^{n\\times2}$ and $Y=(y^{(1)},\\ldots,y^{(n)})^T$. Based on the normal equation, we know that an estimator of $(b_0,w_0)$ in (1) is \n",
+    "$$\n",
+    "(\\hat{b}_0,\\hat{w}_0) = \\left(\\sum_{i=1}^n \\tilde{x}^{(i)}(\\tilde{x}^{(i)})^T\\right)^{-1}\\sum_{i=1}^n \\tilde{x}^{(i)}y_i = (X^TX)^{-1}X^TY. \\tag{2}\n",
+    "$$\n",
+    "The first equality corresponds to the 'summation method', while the last corresponds to vectorization. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "First, we consider the 'summation method', and your job is to write a function based on the first equation of (2). The following command may be useful, and check the help document for details:\n",
+    "* `np.concatenate`: concatenate two arrays\n",
+    "* For two matrices A and B, the matrix multiplication is `A @ B`\n",
+    "* `np.linalg.inv`: calculate the inverse of a matrix\n",
+    "* `np.flatten`: obtain a 1d array."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# PLEASE DO NOT CHANGE THE EXISTING CODE\n",
+    "def estimation_summation(x,y):\n",
+    "    # x: the generated feature vector of length n\n",
+    "    # y: the generated feature vector of length n\n",
+    "    \n",
+    "    # Step 1. Obtain the sample size\n",
+    "    # Step 2. Augment the feature vector with the intercept term, check the relationship between \\tilde{x} and x\n",
+    "    # Step 3. Initialize 'xx' by a 2X2 zero matrix\n",
+    "    # Step 4. Initialize 'xy' by a 2X1 zero matrix\n",
+    "    # Step 5. Calculate the summations for 'xx' and 'xy' based on the first equation of (2)\n",
+    "    # Step 6. Calculate the inverse of 'xx'\n",
+    "    # Step 7. Obtain the estimator as the first equation of (2)\n",
+    "    \n",
+    "    ### YOUR CODE BEGINS HERE (approximately 10 lines)\n",
+    "    n = \n",
+    "    aug_x = \n",
+    "    xx = \n",
+    "    xy = \n",
+    "    \n",
+    "    for i in :\n",
+    "        example_i = \n",
+    "        xx += \n",
+    "        xy += \n",
+    "    \n",
+    "    xx_inv = \n",
+    "    par_est = \n",
+    "    ### YOUR CODE ENDS\n",
+    "    \n",
+    "    return par_est.flatten()\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Next, we consider vectorization, and complete the following function."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# PLEASE DO NOT CHANGE THE EXISTING CODE\n",
+    "def estimation_vectorization(x,y):\n",
+    "    # x: the generated feature vector of length n\n",
+    "    # y: the generated feature vector of length n\n",
+    "    \n",
+    "    # Step 1. Obtain the sample size\n",
+    "    # Step 2. Augment the feature vector with the intercept term, check the relationship between \\tilde{x} and x\n",
+    "    # Step 3. Obtain 'xx' by X^TX, where X is the augmented matrix of size nX2\n",
+    "    # Step 4. Obtain 'xy' by X^TY, where the shape of Y is nX1 \n",
+    "    # Step 5. Calculate the inverse of 'xx'\n",
+    "    # Step 6. Obtain the estimator as the second equation of (2)\n",
+    "    \n",
+    "    ### YOUR CODE BEGINS HERE (approximately 6 lines)\n",
+    "    n = \n",
+    "    aug_x = \n",
+    "    \n",
+    "    xx = \n",
+    "    xy = \n",
+    "   \n",
+    "    xx_inv = \n",
+    "    par_est = \n",
+    "    ### YOUR CODE ENDS\n",
+    "\n",
+    "    return par_est.flatten()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# PLEASE DO NOT CHANGE THE FOLLOWIN
